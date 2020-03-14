@@ -1,5 +1,5 @@
 # observability
-Stack observability [elk, filebeat, prometheus, kafka]
+Stack observability [elk, filebeat, prometheus, kafka] on Kubernetes
 
 01 - Change variable dir_yaml on script stack-elk-kubernetes.sh
 
