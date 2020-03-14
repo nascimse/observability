@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: prometheus-kafka-adapter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: kafka-adapter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka-adapter
+    spec:
+      containers:
+      - name: kafka-adapter
+        image: prometheus-kafka-adapter:v1
+        ports:
+        - containerPort: 8080
+        resources:
+          #requests:
+          #  memory: "64Mi"
+          #  cpu: "250m"
+          #limits:
+          #  memory: "512Mi"
+          #  cpu: "500m"

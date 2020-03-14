@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    task: logging
+    kubernetes.io/name: logstash
+  name: logging-logstash
+  namespace: monitoring
+spec:
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: lumberjack
+  selector:
+    k8s-app: logstash
+
