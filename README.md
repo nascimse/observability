@@ -2,7 +2,9 @@
 Stack observability [elk, filebeat, prometheus, kafka]
 
 01 - Change variables dir_user and dir_yaml on script stack-elk-kubernetes.sh
+
 02 - Execute script: ./stack-elk-kubernetes.sh <user_name>
+
 
 #!/bin/bash -x
 dir_user=$1
