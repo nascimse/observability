@@ -27,7 +27,7 @@ ${dir_yaml}/create-topics.sh cria && \
 kubectl create -f ${dir_yaml}/kube-elasticsearch/ ; sleep 120 && \
 kubectl create -f ${dir_yaml}/kube-kibana/ ; sleep 120 && \
 kubectl create -f ${dir_yaml}/kube-logstash/ ; sleep 120 && \
-kubectl create -f ${dir_yaml}/kube-prometheus-kafka-adapter/ ; sleep 60 && \
+kubectl create -f ${dir_yaml}/kube-prometheus-kafka-adapter/ ; sleep 30 && \
 kubectl get pods -n inmetrics && \
 kubectl create -f ${dir_yaml}/kube-prometheus/ ; sleep 60 && \
 kubectl create -f ${dir_yaml}/kube-filebeat/  ; sleep 60 && \
