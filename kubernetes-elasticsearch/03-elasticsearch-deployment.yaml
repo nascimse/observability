@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    component: elasticsearch
+  name: elasticsearch
+  namespace: monitoring
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: 1
+  revisionHistoryLimit: 2147483647
+  selector:
+    matchLabels:
+      component: elasticsearch
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        component: elasticsearch
+    spec:
+      containers:
+      - env:
+          - name: discovery.type
+            value: single-node
+          - name: ES_JAVA_OPTS
+            value: "-Xms1g -Xmx1g
+                    -Dcom.sun.management.jmxremote
+                    -Dcom.sun.management.jmxremote.authenticate=false
+                    -Dcom.sun.management.jmxremote.ssl=false
+                    -Dcom.sun.management.jmxremote.local.only=false
+                    -Dcom.sun.management.jmxremote.port=1098
+                    -Dcom.sun.management.jmxremote.rmi.port=1098
+                    -Djava.rmi.server.hostname=127.0.0.1"
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+        imagePullPolicy: IfNotPresent
+        name: elasticsearch
+        ports:
+        - containerPort: 9200
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1Gi
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}

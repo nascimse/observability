@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: kibana
+  name: kibana
+  namespace: monitoring
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: 1
+  revisionHistoryLimit: 2147483647
+  selector:
+    matchLabels:
+      run: kibana
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: kibana
+    spec:
+      containers:
+      - env:
+        - name: ELASTICSEARCH_URL
+          value: http://elasticsearch:9200
+        - name: XPACK_SECURITY_ENABLED
+          value: "true"
+        image: docker.elastic.co/kibana/kibana:7.5.0
+        imagePullPolicy: IfNotPresent
+        name: kibana
+        resources:
+          limits:
+            cpu: 1Gi
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100m
+        ports:
+        - containerPort: 5601
+          name: http
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
