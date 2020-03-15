@@ -1,0 +1,69 @@
+#Topics Adminstration
+#Create
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-topics.sh --zookeeper zookeeper.monitoring:2181 --topic TCP-RAW-PROMETHEUS --create --partitions 10 --replication-factor 2
+
+#Add partitions
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-topics.sh --alter --zookeeper zookeeper.monitoring:2181 --partitions 50 --topic TPC-RAW-FILEBEAT
+
+#Producer
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-console-producer.sh --broker-list bootstrap.monitoring:9092 --topic TCP-RAW-FILEBEAT-K8S
+
+#Producer with data send by file
+/opt/kafka/bin/kafka-console-produce.sh --broker-list bootstrap.monitoring:9092 --topic TPC-RAW-NETCOOL < /var/log/syslog >>/dev/null
+
+#Consumer
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server bootstrap.monitoring:9092 --topic TCP-RAW-FILEBEAT-K8S --from-beginning
+
+#List
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-topics.sh --list --bootstrap-server bootstrap.monitoring:9092
+
+#Delete
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-topics.sh --zookeeper zookeeper.monitoring:2181 --delete --topic TCP-RAW-PROMETHEUS
+
+#Retention by size 7GB
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-configs.sh --zookeeper zookeeper:2181 --alter --entity-name TCP-RAW-PROMETHEUS --entity-type topics  --add-config retention.bytes=26214400
+
+#Retention by time (10 minuts)
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --alter --topic TCP-RAW-PROMETHEUS --config retention.ms=600000
+
+#Retention by time, other option
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-configs.sh --zookeeper zookeeper:2181 --alter --entity-name TCP-RAW-PROMETHEUS --entity-type topics  --add-config retention.ms=600000
+
+#Describe topic
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-configs.sh --zookeeper zookeeper:2181 --entity-type topics --entity-name TCP-RAW-PROMETHEUS --describe
+
+#Delete config
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-configs.sh --zookeeper zookeeper:2181 --alter --entity-type topics --entity-name TCP-RAW-PROMETHEUS --delete-config retention.bytes
+
+#Verify group by proccessing
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server bootstrap.monitoring:9092 --describe --group logstash-prometheus | grep TCP-RAW-PROMETHEUS
+
+#List Offset
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-run-class.sh kafka.tools.ConsumerOffsetChecker --zookeeper zookeeper.monitoring:2181  --group logstash-prometheus --topic TCP-RAW-PROMETHEUS
+
+#Creating group
+kubectl -n monitoring exec -ti kafka-cli -- /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server bootstrap.monitoring:9092 --create --group logstash-pro
+kafka-consumer-groups --bootstrap-server localhost:9092 --delete --group octopus
+---------------------------------------------------------------------------------------------------------------------------------------
+#3.2 Topic-Level Configs
+Link: https://kafka.apache.org/22/documentation.html#topicconfigs
+Configurations pertinent to topics have both a server default as well an optional per-topic override. If no per-topic configuration is given the server default is used. The override can be set at topic creation time by giving one or more --config options. This example creates a topic named my-topic with a custom max message size and flush rate:
+1
+2
+> bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic my-topic --partitions 1 \
+    --replication-factor 1 --config max.message.bytes=64000 --config flush.messages=1
+Overrides can also be changed or set later using the alter configs command. This example updates the max message size for my-topic:
+1
+2
+> bin/kafka-configs.sh --zookeeper localhost:2181 --entity-type topics --entity-name my-topic
+    --alter --add-config max.message.bytes=128000
+To check overrides set on the topic you can do
+1
+> bin/kafka-configs.sh --zookeeper localhost:2181 --entity-type topics --entity-name my-topic --describe
+To remove an override you can do
+1
+2
+> bin/kafka-configs.sh --zookeeper localhost:2181  --entity-type topics --entity-name my-topic
+    --alter --delete-config max.message.bytes
+The following are the topic-level configurations. The server's default configuration for this property is given under the Server Default Property heading. A given server default config value only applies to a topic if it does not have an explicit topic config override.
+---------------------------------------------------------------------------------------------------------------------------------------
