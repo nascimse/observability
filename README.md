@@ -2,6 +2,7 @@
 Observability Stack [elk, filebeat, prometheus, kafka]
 
 01 - Variables below can be change on script stack-elk-kubernetes.sh for the  needd.
+
      MEMORY
 
      CPU
